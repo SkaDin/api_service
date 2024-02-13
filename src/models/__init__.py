@@ -1,1 +1,1 @@
-from .movie import Movie, Actor
+from .entity_movie import Movie, Actor
