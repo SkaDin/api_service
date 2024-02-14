@@ -1,5 +1,5 @@
-from datetime import date
-from typing import Optional, List
+from datetime import date, datetime
+from typing import Annotated, Optional, List
 
 from sqlalchemy import (
     ForeignKey,
@@ -9,7 +9,7 @@ from sqlalchemy import (
     ARRAY,
     Integer,
     Date,
-    DECIMAL, Table, Column,
+    DECIMAL, Table, Column, text,
 )
 from sqlalchemy.orm import (
     Mapped,
@@ -17,7 +17,18 @@ from sqlalchemy.orm import (
     relationship,
 )
 from src.core.enums import GenreMovie
-from src.core.db import Base
+from src.core.db import Base, str_256
+
+
+int_pk = Annotated[int, mapped_column(primary_key=True)]
+
+create_at = Annotated[datetime, mapped_column(
+    server_default=text("TIMEZONE('utc', now())")
+)]
+
+update_at = Annotated[datetime, mapped_column(
+    server_default=text("TIMEZONE('utc', now())"), onupdate=datetime.utcnow
+)]
 
 
 movie_actor_association = Table(
@@ -37,12 +48,12 @@ movie_director_association = Table(
 
 class Movie(Base):
     __tablename__ = "movie"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(60), nullable=False)
+    id: Mapped[int_pk]
+    title: Mapped[str_256]
     poster: Mapped[Optional[str]]
-    description: Mapped[str] = mapped_column(Text, nullable=False)
-    genre: Mapped[str] = mapped_column(Enum(GenreMovie), nullable=False)
-    country: Mapped[str] = mapped_column(ARRAY(String(50)), nullable=False)
+    description: Mapped[str] = mapped_column(Text)
+    genre: Mapped[str] = mapped_column(Enum(GenreMovie))
+    country: Mapped[str] = mapped_column(ARRAY(String(256)))
     directors: Mapped[List["Director"]] = relationship(
         "Director",
         secondary=movie_director_association,
@@ -57,21 +68,23 @@ class Movie(Base):
     director_id: Mapped[int] = mapped_column(ForeignKey("director.id"))
     slogan: Mapped[Optional[str]]
     rating: Mapped[DECIMAL] = mapped_column(
-        DECIMAL(scale=2, precision=3), nullable=False, default=0.00
+        DECIMAL(scale=2, precision=3), default=0.00
     )
     age_limit: Mapped[str] = mapped_column(String(3))
-    language: Mapped[Optional[str]] = mapped_column(ARRAY(String(30)))
+    language: Mapped[Optional[str]] = mapped_column(ARRAY(String(256)))
     release_year: Mapped[date] = mapped_column(Date)
+    create_at: Mapped[create_at]
+    update_at: Mapped[update_at]
 
 
 class Actor(Base):
     __tablename__ = "actor"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    first_name: Mapped[str] = mapped_column(String(255), nullable=True)
-    last_name: Mapped[str] = mapped_column(String(255), nullable=True)
-    date_of_birth: Mapped[date] = mapped_column(Date, nullable=False)
-    age: Mapped[int] = mapped_column(Integer, nullable=False)
-    country: Mapped[str] = mapped_column(String(50), nullable=False)
+    id: Mapped[int_pk]
+    first_name: Mapped[str_256]
+    last_name: Mapped[str_256]
+    date_of_birth: Mapped[date] = mapped_column(Date)
+    age: Mapped[int] = mapped_column(Integer)
+    country: Mapped[str_256]
     movies: Mapped["Movie"] = relationship(
         "Movie",
         secondary=movie_actor_association,
@@ -82,12 +95,11 @@ class Actor(Base):
 class Director(Base):
     __tablename__ = "director"
     id: Mapped[int] = mapped_column(primary_key=True)
-    first_name: Mapped[str] = mapped_column(String(255), nullable=True)
-    last_name: Mapped[str] = mapped_column(String(255), nullable=True)
+    first_name: Mapped[str_256]
+    last_name: Mapped[str_256]
     date_of_birth: Mapped[date] = mapped_column(Date)
     movies: Mapped[List["Movie"]] = relationship(
         "Movie",
         secondary=movie_director_association,
         back_populates="directors",
     )
-
