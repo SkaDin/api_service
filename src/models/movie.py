@@ -5,17 +5,15 @@ from sqlalchemy import (
     ForeignKey,
     String,
     Text,
-    Enum,
     ARRAY,
     Date,
-    DECIMAL,
+    DECIMAL
 )
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
     relationship,
 )
-from src.core.enums import GenreMovie
 from src.core.db import Base, str_256, int_pk, create_at, update_at
 from src.models.director import Director
 from src.models import Actor
@@ -31,7 +29,7 @@ class Movie(Base):
     title: Mapped[str_256]
     poster: Mapped[Optional[str]]
     description: Mapped[str] = mapped_column(Text)
-    genre: Mapped[str] = mapped_column(Enum(GenreMovie))
+    genre: Mapped[str] = mapped_column(ARRAY(String(256)))
     country: Mapped[str] = mapped_column(ARRAY(String(256)))
     directors: Mapped[list["Director"]] = relationship(
         "Director",
@@ -54,3 +52,5 @@ class Movie(Base):
     release_year: Mapped[date] = mapped_column(Date)
     create_at: Mapped[create_at]
     update_at: Mapped[update_at]
+    source: Mapped[str]
+    trailer: Mapped[str]
