@@ -14,6 +14,16 @@ from src.core.config import Settings
 
 str_256 = Annotated[str, 256]
 
+int_pk = Annotated[int, mapped_column(primary_key=True)]
+
+create_at = Annotated[datetime, mapped_column(
+    server_default=text("TIMEZONE('utc', now())")
+)]
+
+update_at = Annotated[datetime, mapped_column(
+    server_default=text("TIMEZONE('utc', now())"), onupdate=datetime.utcnow
+)]
+
 
 class Base(DeclarativeBase):
     type_annotation_map = {

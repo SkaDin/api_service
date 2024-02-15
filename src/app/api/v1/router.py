@@ -4,7 +4,7 @@ from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.app.api.v1.schemas import CreateMovie
 from src.core.db import get_async_session
-from src.models.entity_movie import Movie
+from src.models.movie import Movie
 
 
 router = APIRouter()
