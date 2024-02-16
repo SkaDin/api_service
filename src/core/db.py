@@ -14,6 +14,8 @@ from src.core.config import Settings
 
 str_256 = Annotated[str, 256]
 
+str_3 = Annotated[str, 3]
+
 int_pk = Annotated[int, mapped_column(primary_key=True)]
 
 create_at = Annotated[datetime, mapped_column(
@@ -27,7 +29,8 @@ update_at = Annotated[datetime, mapped_column(
 
 class Base(DeclarativeBase):
     type_annotation_map = {
-        str_256: String(256)
+        str_256: String(256),
+        str_3: String(3)
     }
 
 
