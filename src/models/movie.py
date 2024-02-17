@@ -7,7 +7,7 @@ from sqlalchemy import (
     Text,
     ARRAY,
     Date,
-    DECIMAL,
+    DECIMAL, Index,
 )
 from sqlalchemy.orm import (
     Mapped,
@@ -17,10 +17,6 @@ from sqlalchemy.orm import (
 from src.core.db import Base, str_256, int_pk, create_at, update_at, str_3
 from src.models.director import Director
 from src.models import Actor
-from src.models.many_to_many_table import (
-    movie_director_association,
-    movie_actor_association,
-)
 
 
 class Movie(Base):
@@ -34,29 +30,29 @@ class Movie(Base):
     country: Mapped[str] = mapped_column(ARRAY(String(256)))
     directors: Mapped[list["Director"]] = relationship(
         "Director",
-        secondary=movie_director_association,
-        back_populates="movies",
+        back_populates="movies_directors",
+        secondary="movie_director_association",
     )
     actors: Mapped[list["Actor"]] = relationship(
         "Actor",
-        secondary=movie_actor_association,
-        back_populates="movies",
+        back_populates="movies_actors",
+        secondary="movie_actor_association",
     )
-    # actor_id: Mapped[int] = mapped_column(ForeignKey("actor.id"))
-    # director_id: Mapped[int] = mapped_column(ForeignKey("director.id"))
     slogan: Mapped[Optional[str]]
     rating: Mapped[DECIMAL] = mapped_column(
         DECIMAL(scale=1, precision=2), default=0.0
     )
     age_limit: Mapped[str_3]
-    original_language: Mapped[Optional[str]] = mapped_column(
-        ARRAY(String(256))
-    )
+    original_language: Mapped[str_256]
     release_year: Mapped[date] = mapped_column(Date)
     create_at: Mapped[create_at]
     update_at: Mapped[update_at]
     source: Mapped[str]
     trailer: Mapped[str]
-    duration: Mapped[str_3]
+    duration: Mapped[str]
     budget: Mapped[str]
     fees: Mapped[str]
+
+    __table_args__ = (
+        Index("title_index", "title_ru", "title_en"),
+    )

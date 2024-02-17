@@ -1,11 +1,9 @@
 from datetime import date
 
-from sqlalchemy import Date, Integer
+from sqlalchemy import Date, Integer, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.db import Base, str_256, int_pk
-
-from src.models.many_to_many_table import movie_actor_association
 
 
 class Actor(Base):
@@ -16,9 +14,13 @@ class Actor(Base):
     date_of_birth: Mapped[date] = mapped_column(Date)
     age: Mapped[int] = mapped_column(Integer)
     country: Mapped[str_256]
-    movies: Mapped["Movie"] = relationship( # noqa cyclic import
+    movies_actors: Mapped[list["Movie"]] = relationship( # noqa cyclic import
         "Movie",
-        secondary=movie_actor_association,
         back_populates="actors",
+        secondary="movie_actor_association",
+    )
+
+    __table_args__ = (
+        Index("first_name_index_to_actor", "first_name"),
     )
 

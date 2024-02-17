@@ -1,8 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 
-from sqlalchemy import insert, select, cast, func, Integer, and_, String
+from sqlalchemy import insert, select, cast, func, Integer, and_, String, Result, any_
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.app.api.v1.schemas import CreateMovie, OutMovie
+from sqlalchemy.orm import joinedload, selectinload
+
+from src.app.api.v1.schemas import CreateMovie, OutMovie, ActorView
 from src.core.db import get_async_session
 from src.models.movie import Movie, Actor, Director
 
@@ -11,26 +14,35 @@ router = APIRouter()
 
 
 @router.get(
-    "/"
+    "/",
 )
 async def get_data(
     movie_id: int,
     session: AsyncSession = Depends(get_async_session),
-) -> dict:
-    query = (
-        select(
-            Movie.title_ru,
-            Actor.first_name,
-            Director.first_name,
+):
+    # query: Result = await session.execute(
+    #     select(
+    #         Movie
+    #     )
+    #     .where(Movie.id == movie_id)
+    #     .options(
+    #         selectinload(Movie.actors),
+    #         selectinload(Movie.directors)
+    #     )
+    #
+    # )
+    query: Result = await session.execute(
+        select(Movie)
+        .options(
+            selectinload(Movie.actors),
+            selectinload(Movie.directors),
         )
-        .select_from(Movie)
-        .join(Actor, Actor.id == Movie.actors)
-        .join(Director, Director.id == Movie.directors)
     )
-    query = await session.execute(query)
-    res = query.one_or_none()
+    query: Movie = query.scalar()
+    print(f"\n\n\n{query}\n\n")
+    res = [OutMovie.model_validate(query, from_attributes=True)]
     print(f"\n\n\n\n{res}\n\n\n")
-    return {"res": [*res]}
+    return res
 
 
 @router.post(
@@ -61,10 +73,10 @@ async def create_movie(
   "poster": "NOne",
   "description": "Когда засуха, пыльные бури и вымирание растений приводят человечество к продовольственному кризису, коллектив исследователей и учёных отправляется сквозь червоточину (которая предположительно соединяет области пространства-времени через большое расстояние) в путешествие, чтобы превзойти прежние ограничения для космических путешествий человека и найти планету с подходящими для человечества условиями.",
   "genre": [
-    "фантастика", "драма", "приключения"
+      {'фантастика', 'драма', 'приключения'}
   ],
   "country": [
-    "США", "Великобритания", "Канада"
+      {'США', 'Великобритания', 'Канада'}
   ],
   "slogan": "NOne",
   "rating": 8.6,

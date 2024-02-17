@@ -5,23 +5,39 @@ from decimal import Decimal
 from pydantic import BaseModel, Field
 
 
+class ActorView(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    date_of_birth: date
+    age: int
+    country: str
+
+
+class DirectorView(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    date_of_birth: date
+
+
 class CreateMovie(BaseModel):
     title_en: str = Field(max_length=60)
     title_ru: str = Field(max_length=60)
     poster: Optional[str]
     description: str
-    genre: Tuple[str, ...]
-    country: Tuple[str, ...] = Field(max_length=60)
+    genre: list[str]
+    country: list[str] = Field(max_length=60)
     slogan: Optional[str]
     rating: Decimal
     age_limit: str = Field(max_length=3)
-    original_language: Tuple[str, ...]
+    original_language: str
     release_year: date
-    actors: int  # TODO понять работу с M2M в pydantic
-    directors: int
+    actors: list[ActorView]
+    directors: list[DirectorView]
     source: str
     trailer: str
-    duration: str = Field(max_length=3)
+    duration: str
     budget: int
     fees: int
 

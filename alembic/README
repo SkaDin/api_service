@@ -1,1 +1,17 @@
 Generic single-database configuration with an async dbapi.
+
+    op.create_table('movie_actor_association',
+        sa.Column('movie_id', sa.Integer(), nullable=False),
+        sa.Column('actor_id', sa.Integer(), nullable=False),
+        sa.ForeignKeyConstraint(['movie_id'], ['movie.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['actor_id'], ['actor.id'], ondelete='CASCADE'),
+        sa.PrimaryKeyConstraint('movie_id', 'actor_id')
+    )
+
+    op.create_table('movie_director_association',
+        sa.Column('movie_id', sa.Integer(), nullable=False),
+        sa.Column('director_id', sa.Integer(), nullable=False),
+        sa.ForeignKeyConstraint(['movie_id'], ['movie.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['director_id'], ['director.id'], ondelete='CASCADE'),
+        sa.PrimaryKeyConstraint('movie_id', 'director_id')
+    )

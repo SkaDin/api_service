@@ -33,6 +33,10 @@ class Base(DeclarativeBase):
         str_3: String(3)
     }
 
+    def __repr__(self):
+        cols = [f"{col}={getattr(self, col)}" for col in self.__table__.columns.keys()]
+        return f"\n<{self.__class__.__name__} {' '.join(cols)}>\n"
+
 
 engine = create_async_engine(Settings.DB_URL, echo=True)
 
