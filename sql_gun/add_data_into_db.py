@@ -12,6 +12,8 @@ async def add_sql_scripts():
         "sql_gun/pg/insert_actors.sql",
         "sql_gun/pg/insert_directors.sql",
         "sql_gun/pg/insert_movie.sql",
+        "sql_gun/pg/relation_actor.sql",
+        "sql_gun/pg/relation_director.sql",
     )
     for path in paths:
         with open(path, "r") as file:

@@ -1,8 +1,6 @@
 from datetime import date
-from typing import Optional
 
 from sqlalchemy import (
-    ForeignKey,
     String,
     Text,
     ARRAY,
@@ -24,7 +22,7 @@ class Movie(Base):
     id: Mapped[int_pk]
     title_ru: Mapped[str_256]
     title_en: Mapped[str_256]
-    poster: Mapped[Optional[str]]
+    poster: Mapped[str | None]
     description: Mapped[str] = mapped_column(Text)
     genre: Mapped[str] = mapped_column(ARRAY(String(256)))
     country: Mapped[str] = mapped_column(ARRAY(String(256)))
@@ -38,7 +36,7 @@ class Movie(Base):
         back_populates="movies_actors",
         secondary="movie_actor_association",
     )
-    slogan: Mapped[Optional[str]]
+    slogan: Mapped[str | None]
     rating: Mapped[DECIMAL] = mapped_column(
         DECIMAL(scale=1, precision=2), default=0.0
     )
