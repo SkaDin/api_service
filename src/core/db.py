@@ -10,7 +10,6 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import DeclarativeBase, mapped_column
 from fastapi_users.db import SQLAlchemyUserDatabase
-
 from src.core.config import Settings
 
 
@@ -53,5 +52,5 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 async def get_user_db(
     session: AsyncSession = Depends(get_async_session),
 ):
-    from src.models.user import User
+    from src.models import User
     yield SQLAlchemyUserDatabase(session, User)
