@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import text
 
 
-engine = create_async_engine("postgresql+asyncpg://postgres:05111996@localhost:5433/my_db_proj")
+engine = create_async_engine("postgresql+asyncpg://SkaDin:05111996@localhost:5433/my_db_proj")
 
 
 async def add_sql_scripts():
