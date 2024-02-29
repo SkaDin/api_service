@@ -1,22 +1,30 @@
-import os
-from dataclasses import dataclass
-
-from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
 
 
-load_dotenv()
+class Settings(BaseSettings):
+    MODE: str
+
+    DB_URL: str
+    REDIS_URL: str
+    SECRET: str
+    DB_HOST: str
+    DB_PORT: str
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_NAME: str
+
+    REDIS_URL: str
+    REDIS_PORT: str
+    REDIS_DB: str
+    REDIS_PASSWORD: str
+    REDIS_USERNAME: str
+
+    @property
+    def db_url(self):
+        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_NAME}"
+
+    class Config:
+        env_file = ".env"
 
 
-@dataclass
-class Settings:
-
-    DB_URL: str = os.getenv("DATABASE_URL")
-    SECRET: str = os.getenv("SECRET")
-    DB_HOST: str = os.getenv("DB_HOST")
-    DB_PORT: str = os.getenv("DB_PORT")
-    DB_USER: str = os.getenv("DB_USER")
-    DB_PASSWORD: str = os.getenv("DB_PASSWORD")
-    DB_NAME: str = os.getenv("DB_NAME")
-
-
-Settings = Settings()
+settings = Settings()

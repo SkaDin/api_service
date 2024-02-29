@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import DeclarativeBase, mapped_column
 from fastapi_users.db import SQLAlchemyUserDatabase
-from src.core.config import Settings
+from src.core.config import settings
 
 
 str_256 = Annotated[str, 256]
@@ -35,7 +35,7 @@ class Base(DeclarativeBase):
     }
 
 
-engine = create_async_engine(Settings.DB_URL, echo=True)
+engine = create_async_engine(settings.DB_URL, echo=True)
 
 AsyncSessionLocal = async_sessionmaker(
     engine,
@@ -52,5 +52,5 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 async def get_user_db(
     session: AsyncSession = Depends(get_async_session),
 ):
-    from src.models import User
+    from src.models import User  # ignore cyclic import
     yield SQLAlchemyUserDatabase(session, User)

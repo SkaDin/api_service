@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from src.app.api.v1.router import router as create_router
+from src.app.api.movie.router import router as create_router
 
 router = APIRouter(prefix="/api/v1")
 
