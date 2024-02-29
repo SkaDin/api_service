@@ -1,8 +1,10 @@
 import pytest
 import pytest_asyncio
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, text
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.ext.asyncio import async_session
+from sqlalchemy.orm import selectinload
+
 from src.core.base import ( # noqa
     Base,
     Director,
@@ -28,7 +30,7 @@ def postgres_container() -> PostgresContainer:
 
     yield container
 
-    # container.stop()
+    container.stop()
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -40,9 +42,22 @@ def test_db(postgres_container):
         postgres_container.get_connection_url(),
         echo=True,
     )
-    print(postgres_container.get_connection_url())
+    print(postgres_container.driver)
     with engine.begin() as conn:
         Base.metadata.create_all(bind=engine)
+        paths = [
+            "sql_gun/pg/insert_actors.sql",
+            "sql_gun/pg/insert_directors.sql",
+            "sql_gun/pg/insert_movie.sql",
+            "sql_gun/pg/relation_actor.sql",
+            "sql_gun/pg/relation_director.sql",
+        ]
+
+        for path in paths:
+            with open(path, "r") as file:
+                script = file.read()
+
+            conn.execute(text(script))
 
     yield engine
 
@@ -79,11 +94,14 @@ async def test_post(test_db):
 
 
 @pytest.mark.asyncio
-
 async def test_patch(test_db):
     with test_db.begin() as session:
-        stmt = session.execute(select(
-            Movie
-        ))
-        res = stmt.scalars().all()
+        stmt = session.execute(
+            select(
+                Actor.first_name,
+                Actor.age,
+            )
+        )
+        res = stmt.unique().all()
+        print(f"\n\n\n\n\n{res}")
         assert res, "Nothing"
